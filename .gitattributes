@@ -1,3 +1,0 @@
-﻿# Mark third-party libraries as vendored
-AppSec Assignment 2/wwwroot/lib/** linguist-vendored
-*.min.js linguist-vendored
