@@ -1,0 +1,186 @@
+@page
+@model AppSec_Assignment_2.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">Register for Ace Job Agency</h2>
+
+   <form method="post" enctype="multipart/form-data" id="registerForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row">
+      <div class="col-md-6 mb-3">
+            <label asp-for="Input.FirstName" class="form-label"></label>
+        <input asp-for="Input.FirstName" class="form-control" />
+         <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+    </div>
+      <div class="col-md-6 mb-3">
+         <label asp-for="Input.LastName" class="form-label"></label>
+<input asp-for="Input.LastName" class="form-control" />
+       <span asp-validation-for="Input.LastName" class="text-danger"></span>
+     </div>
+            </div>
+
+          <div class="row">
+                <div class="col-md-6 mb-3">
+      <label asp-for="Input.Gender" class="form-label"></label>
+        <select asp-for="Input.Gender" class="form-select">
+        <option value="">Select Gender</option>
+        <option value="Male">Male</option>
+         <option value="Female">Female</option>
+      <option value="Other">Other</option>
+      </select>
+               <span asp-validation-for="Input.Gender" class="text-danger"></span>
+       </div>
+  <div class="col-md-6 mb-3">
+   <label asp-for="Input.DateOfBirth" class="form-label"></label>
+         <input asp-for="Input.DateOfBirth" class="form-control" type="date" />
+     <span asp-validation-for="Input.DateOfBirth" class="text-danger"></span>
+   </div>
+  </div>
+
+      <div class="mb-3">
+    <label asp-for="Input.Nric" class="form-label"></label>
+             <input asp-for="Input.Nric" class="form-control" />
+ <span asp-validation-for="Input.Nric" class="text-danger"></span>
+            </div>
+
+        <div class="mb-3">
+          <label asp-for="Input.Email" class="form-label"></label>
+          <input asp-for="Input.Email" class="form-control" type="email" />
+         <span asp-validation-for="Input.Email" class="text-danger"></span>
+   </div>
+
+      <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label"></label>
+  <input asp-for="Input.Password" class="form-control" type="password" id="passwordInput" />
+           <span asp-validation-for="Input.Password" class="text-danger"></span>
+    <div id="passwordStrength" class="mt-2">
+ <span id="strengthText" class="badge"></span>
+ <ul id="passwordRequirements" class="small mt-1 text-muted"></ul>
+     </div>
+            </div>
+
+         <div class="mb-3">
+    <label asp-for="Input.ConfirmPassword" class="form-label"></label>
+        <input asp-for="Input.ConfirmPassword" class="form-control" type="password" />
+           <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+   </div>
+
+            <div class="mb-3">
+ <label asp-for="Input.Resume" class="form-label"></label>
+     <input asp-for="Input.Resume" class="form-control" type="file" accept=".pdf,.docx" />
+             <span asp-validation-for="Input.Resume" class="text-danger"></span>
+                <small class="text-muted">Accepted formats: PDF, DOCX. Maximum size: 2MB</small>
+            </div>
+
+    <div class="mb-3">
+      <label asp-for="Input.WhoAmI" class="form-label"></label>
+                <textarea asp-for="Input.WhoAmI" class="form-control" rows="4" 
+              placeholder="Tell us about yourself..."></textarea>
+            <span asp-validation-for="Input.WhoAmI" class="text-danger"></span>
+   </div>
+
+<input type="hidden" asp-for="Input.RecaptchaToken" id="recaptchaToken" />
+
+     <div class="d-grid gap-2">
+     <button type="submit" class="btn btn-primary btn-lg">Register</button>
+         </div>
+     </form>
+
+        <div class="mt-3 text-center">
+  <p>Already have an account? <a asp-page="/Account/Login">Login here</a></p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    @if (!string.IsNullOrEmpty(Model.ReCaptchaSiteKey))
+    {
+        <script src="https://www.google.com/recaptcha/api.js?render=@Model.ReCaptchaSiteKey"></script>
+        <script>
+      grecaptcha.ready(function() {
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+   e.preventDefault();
+        grecaptcha.execute('@Model.ReCaptchaSiteKey', {action: 'register'}).then(function(token) {
+ document.getElementById('recaptchaToken').value = token;
+         e.target.submit();
+        });
+          });
+  });
+        </script>
+  }
+
+    <script>
+  // Client-side password strength indicator
+        document.getElementById('passwordInput').addEventListener('input', function() {
+         const password = this.value;
+         const strengthText = document.getElementById('strengthText');
+            const requirementsList = document.getElementById('passwordRequirements');
+        
+     let score = 0;
+            let requirements = [];
+
+ // Check length
+            if (password.length >= 12) {
+  score += 2;
+            } else if (password.length >= 8) {
+                score += 1;
+  requirements.push('Password should be at least 12 characters');
+         } else {
+                requirements.push('Password must be at least 12 characters');
+          }
+
+       // Check lowercase
+            if (/[a-z]/.test(password)) {
+    score += 1;
+            } else {
+            requirements.push('Add a lowercase letter');
+}
+
+        // Check uppercase
+            if (/[A-Z]/.test(password)) {
+    score += 1;
+     } else {
+                requirements.push('Add an uppercase letter');
+         }
+
+        // Check digit
+   if (/\d/.test(password)) {
+      score += 1;
+      } else {
+    requirements.push('Add a number');
+            }
+
+   // Check special character
+            if (/[!@@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password)) {
+    score += 1;
+     } else {
+       requirements.push('Add a special character');
+     }
+
+      // Update strength indicator
+        strengthText.className = 'badge';
+    if (password.length === 0) {
+           strengthText.textContent = '';
+  } else if (score <= 2) {
+                strengthText.textContent = 'Weak';
+                strengthText.classList.add('bg-danger');
+   } else if (score <= 4) {
+      strengthText.textContent = 'Medium';
+      strengthText.classList.add('bg-warning');
+            } else {
+      strengthText.textContent = 'Strong';
+          strengthText.classList.add('bg-success');
+       }
+
+ // Update requirements list
+     requirementsList.innerHTML = requirements.map(r => '<li>' + r + '</li>').join('');
+        });
+    </script>
+}

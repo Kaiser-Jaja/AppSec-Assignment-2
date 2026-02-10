@@ -1,0 +1,56 @@
+@page "/Errors/StatusCode/{statusCode:int?}"
+@model AppSec_Assignment_2.Pages.Errors.StatusCodeModel
+@{
+  ViewData["Title"] = Model.StatusCode switch
+    {
+     404 => "Page Not Found",
+        403 => "Access Denied",
+        500 => "Server Error",
+        _ => "Error"
+    };
+}
+
+<div class="container">
+    <div class="text-center mt-5">
+        @switch (Model.StatusCode)
+        {
+   case 404:
+   <h1 class="display-1 text-danger">404</h1>
+        <h2 class="display-6">Page Not Found</h2>
+     <p class="lead">Sorry, the page you are looking for does not exist.</p>
+         break;
+    case 403:
+             <h1 class="display-1 text-warning">403</h1>
+             <h2 class="display-6">Access Denied</h2>
+       <p class="lead">Sorry, you do not have permission to access this resource.</p>
+                break;
+            case 500:
+                <h1 class="display-1 text-danger">500</h1>
+                <h2 class="display-6">Server Error</h2>
+ <p class="lead">An internal server error occurred. Please try again later.</p>
+     break;
+   default:
+       <h1 class="display-1 text-danger">@Model.StatusCode</h1>
+     <h2 class="display-6">Error</h2>
+                <p class="lead">An error occurred while processing your request.</p>
+     break;
+        }
+    <div class="mt-4">
+            <a asp-page="/Index" class="btn btn-primary">
+    <i class="bi bi-house-door"></i> Go to Home
+            </a>
+            @if (User.Identity?.IsAuthenticated == true)
+    {
+            <a asp-page="/Account/Logout" class="btn btn-outline-secondary ms-2">
+       <i class="bi bi-box-arrow-right"></i> Logout
+             </a>
+   }
+        else
+     {
+            <a asp-page="/Account/Login" class="btn btn-outline-secondary ms-2">
+         <i class="bi bi-box-arrow-in-right"></i> Login
+      </a>
+       }
+    </div>
+    </div>
+</div>

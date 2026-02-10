@@ -1,0 +1,46 @@
+@page
+@model AppSec_Assignment_2.Pages.TestErrorPagesModel
+@{
+    ViewData["Title"] = "Test Error Pages";
+}
+
+<div class="container mt-5">
+    <h2>Test Error Pages</h2>
+    <p class="text-muted">Click the links below to test different error pages:</p>
+    
+    <div class="list-group">
+        <a href="/Errors/StatusCode/404" class="list-group-item list-group-item-action">
+  <h5 class="mb-1">404 - Page Not Found</h5>
+            <p class="mb-1">Test the 404 error page</p>
+        </a>
+    
+        <a href="/Errors/StatusCode/403" class="list-group-item list-group-item-action">
+     <h5 class="mb-1">403 - Forbidden</h5>
+ <p class="mb-1">Test the 403 forbidden page</p>
+        </a>
+        
+   <a href="/Errors/StatusCode/500" class="list-group-item list-group-item-action">
+     <h5 class="mb-1">500 - Server Error</h5>
+   <p class="mb-1">Test the 500 server error page</p>
+        </a>
+        
+   <a href="/Errors/Forbidden" class="list-group-item list-group-item-action">
+        <h5 class="mb-1">Forbidden (Direct)</h5>
+     <p class="mb-1">Test the forbidden page directly</p>
+  </a>
+        
+        <a href="/Errors/NotFound" class="list-group-item list-group-item-action">
+        <h5 class="mb-1">Not Found (Direct)</h5>
+         <p class="mb-1">Test the not found page directly</p>
+        </a>
+        
+        <a href="/this-page-does-not-exist" class="list-group-item list-group-item-action">
+            <h5 class="mb-1">Invalid URL</h5>
+     <p class="mb-1">Navigate to a non-existent page to trigger automatic 404</p>
+    </a>
+    </div>
+    
+    <div class="mt-4">
+        <a asp-page="/Index" class="btn btn-outline-secondary">Back to Home</a>
+    </div>
+</div>

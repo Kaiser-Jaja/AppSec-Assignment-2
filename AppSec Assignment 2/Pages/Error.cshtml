@@ -1,0 +1,32 @@
+﻿@page "/Error"
+@model ErrorModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="container">
+ <div class="text-center mt-5">
+    <h1 class="display-1 text-danger">Error</h1>
+     <h2 class="display-6">Something went wrong</h2>
+  <p class="lead">An unexpected error occurred. Please try again later.</p>
+    
+     @if (Model.ShowRequestId)
+ {
+    <p class="text-muted">
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+     </p>
+        }
+    
+   <div class="mt-4">
+    <a asp-page="/Index" class="btn btn-primary">
+       <i class="bi bi-house-door"></i> Go to Home
+    </a>
+   @if (User.Identity?.IsAuthenticated == true)
+            {
+     <a asp-page="/Account/Logout" class="btn btn-outline-secondary ms-2">
+  <i class="bi bi-box-arrow-right"></i> Logout
+    </a>
+   }
+        </div>
+    </div>
+</div>

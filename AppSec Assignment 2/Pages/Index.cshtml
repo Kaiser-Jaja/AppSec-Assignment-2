@@ -1,0 +1,105 @@
+﻿@page
+@model IndexModel
+@{
+ ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to Ace Job Agency</h1>
+</div>
+
+@if (User.Identity?.IsAuthenticated == true && Model.Member != null)
+{
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+      <div class="card">
+         <div class="card-header d-flex justify-content-between align-items-center">
+         <h4 class="mb-0">Your Profile</h4>
+        <div>
+        @if (Model.Member.TwoFactorEnabled)
+ {
+   <span class="badge bg-success me-2">2FA Enabled</span>
+  }
+    </div>
+ </div>
+   <div class="card-body">
+  <div class="row mb-3">
+  <div class="col-md-4"><strong>Name:</strong></div>
+       <div class="col-md-8">@Model.Member.FirstName @Model.Member.LastName</div>
+         </div>
+       <div class="row mb-3">
+      <div class="col-md-4"><strong>Email:</strong></div>
+          <div class="col-md-8">@Model.Member.Email</div>
+     </div>
+     <div class="row mb-3">
+        <div class="col-md-4"><strong>Gender:</strong></div>
+      <div class="col-md-8">@Model.Member.Gender</div>
+   </div>
+ <div class="row mb-3">
+     <div class="col-md-4"><strong>Date of Birth:</strong></div>
+    <div class="col-md-8">@Model.Member.DateOfBirth.ToString("yyyy-MM-dd")</div>
+        </div>
+         <div class="row mb-3">
+     <div class="col-md-4"><strong>NRIC:</strong></div>
+       <div class="col-md-8">@Model.DecryptedNric</div>
+       </div>
+     @if (!string.IsNullOrEmpty(Model.Member.WhoAmI))
+   {
+      <div class="row mb-3">
+   <div class="col-md-4"><strong>About Me:</strong></div>
+       @* WhoAmI is automatically HTML-encoded by Razor to prevent XSS *@
+            <div class="col-md-8">@Model.Member.WhoAmI</div>
+        </div>
+ }
+       @if (!string.IsNullOrEmpty(Model.Member.ResumeFileName))
+                    {
+     <div class="row mb-3">
+        <div class="col-md-4"><strong>Resume:</strong></div>
+         <div class="col-md-8">
+          <a href="/resumes/@Model.Member.ResumeFileName" target="_blank" class="btn btn-sm btn-outline-primary">
+       Download Resume
+  </a>
+    </div>
+ </div>
+   }
+              <div class="row mb-3">
+        <div class="col-md-4"><strong>Member Since:</strong></div>
+        <div class="col-md-8">@Model.Member.CreatedAt.ToString("yyyy-MM-dd")</div>
+         </div>
+       @if (Model.Member.LastPasswordChangeAt.HasValue)
+                 {
+          <div class="row mb-3">
+  <div class="col-md-4"><strong>Password Last Changed:</strong></div>
+       <div class="col-md-8">@Model.Member.LastPasswordChangeAt.Value.ToString("yyyy-MM-dd HH:mm")</div>
+        </div>
+ }
+   </div>
+           <div class="card-footer">
+       <div class="d-flex justify-content-between align-items-center">
+ <div>
+ <a asp-page="/Account/ChangePassword" class="btn btn-outline-secondary me-2">Change Password</a>
+         <a asp-page="/Account/Setup2FA" class="btn btn-outline-secondary">
+      @(Model.Member.TwoFactorEnabled ? "Manage 2FA" : "Enable 2FA")
+ </a>
+   </div>
+    <form method="post" asp-page="/Account/Logout" class="d-inline">
+        <button type="submit" class="btn btn-outline-danger">Logout</button>
+ </form>
+   </div>
+          </div>
+  </div>
+  </div>
+    </div>
+}
+else
+{
+ <div class="row justify-content-center mt-4">
+  <div class="col-md-6 text-center">
+ <p class="lead">Join Ace Job Agency today!</p>
+ <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+ <a asp-page="/Account/Login" class="btn btn-primary btn-lg">Login</a>
+      <a asp-page="/Account/Register" class="btn btn-outline-primary btn-lg">Register</a>
+ </div>
+   </div>
+    </div>
+}

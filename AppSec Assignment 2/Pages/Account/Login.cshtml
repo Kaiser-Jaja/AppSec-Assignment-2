@@ -1,0 +1,88 @@
+@page
+@model AppSec_Assignment_2.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="mb-4">Login to Ace Job Agency</h2>
+
+      @if (!string.IsNullOrEmpty(Model.Message))
+      {
+     var alertClass = Model.Message switch
+    {
+        "registered" => "alert-success",
+    "session_expired" => "alert-warning",
+           "logged_out" => "alert-info",
+ _ => "alert-info"
+  };
+            var messageText = Model.Message switch
+            {
+          "registered" => "Registration successful! Please login.",
+       "session_expired" => "Your session has expired or you logged in from another device.",
+              "logged_out" => "You have been logged out successfully.",
+     _ => Model.Message
+            };
+            <div class="alert @alertClass">@messageText</div>
+        }
+
+        <form method="post" id="loginForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+   <div class="mb-3">
+   <label asp-for="Input.Email" class="form-label"></label>
+        <input asp-for="Input.Email" class="form-control" type="email" autocomplete="email" />
+       <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+  <div class="mb-3">
+       <label asp-for="Input.Password" class="form-label"></label>
+    <input asp-for="Input.Password" class="form-control" type="password" autocomplete="current-password" />
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+       <div class="row mb-3">
+           <div class="col">
+          <div class="form-check">
+            <input asp-for="Input.RememberMe" class="form-check-input" />
+    <label asp-for="Input.RememberMe" class="form-check-label"></label>
+     </div>
+    </div>
+       <div class="col text-end">
+         <a asp-page="/Account/ForgotPassword">Forgot password?</a>
+          </div>
+   </div>
+
+ <input type="hidden" asp-for="Input.RecaptchaToken" id="recaptchaToken" />
+
+   <div class="d-grid gap-2">
+       <button type="submit" class="btn btn-primary btn-lg">Login</button>
+            </div>
+   </form>
+
+      <div class="mt-3 text-center">
+            <p>Don't have an account? <a asp-page="/Account/Register">Register here</a></p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    @if (!string.IsNullOrEmpty(Model.ReCaptchaSiteKey))
+ {
+        <script src="https://www.google.com/recaptcha/api.js?render=@Model.ReCaptchaSiteKey"></script>
+        <script>
+     grecaptcha.ready(function() {
+   document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+          grecaptcha.execute('@Model.ReCaptchaSiteKey', {action: 'login'}).then(function(token) {
+        document.getElementById('recaptchaToken').value = token;
+e.target.submit();
+          });
+                });
+      });
+        </script>
+    }
+}
