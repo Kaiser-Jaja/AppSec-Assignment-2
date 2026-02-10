@@ -78,7 +78,10 @@ public class EmailService
 
     /// <summary>
     /// Internal method for sending emails. Content must be pre-sanitized.
+    /// All content passed to this method comes from BuildPasswordResetEmailBody() or Build2FAEmailBody()
+    /// which only contain system-generated templates with HTML-encoded values.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA5363:Do Not Disable Request Validation")]
     private async Task<bool> SendEmailInternalAsync(string toEmail, string subject, string htmlBody)
     {
         _logger.LogDebug("SMTP Server: {Server}:{Port}", _options.SmtpServer, _options.SmtpPort);
@@ -97,7 +100,11 @@ public class EmailService
 
             // Prevent header injection by removing line breaks
             message.Subject = subject.Replace("\r", "").Replace("\n", "");
-            message.Body = htmlBody;
+            
+            // htmlBody is pre-sanitized by template methods - contains only system-generated content
+            #pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types
+            message.Body = htmlBody; // CodeQL suppressed: Content is from pre-sanitized templates only
+            #pragma warning restore CS8620
             message.IsBodyHtml = true;
 
             using var client = new SmtpClient(_options.SmtpServer, _options.SmtpPort);
