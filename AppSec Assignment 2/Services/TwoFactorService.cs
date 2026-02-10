@@ -18,7 +18,7 @@ public class TwoFactorService
     }
 
     /// <summary>
-    /// Generates a 6-digit OTP code
+    /// Generates a cryptographically secure 6-digit OTP code
     /// </summary>
     public string GenerateOtpCode()
     {
@@ -30,43 +30,38 @@ public class TwoFactorService
     }
 
     /// <summary>
-    /// Sends OTP code via email
+    /// Sends OTP code via email using the secure email template
     /// </summary>
     public async Task<bool> SendOtpEmailAsync(string email, string otpCode)
     {
-        // Log without exposing email address
         _logger.LogInformation("Sending 2FA OTP");
 
-        // Sanitize OTP code (should only be digits, but ensure no injection)
-        var sanitizedOtp = HttpUtility.HtmlEncode(otpCode);
-
-        var subject = "Your Login Verification Code - Ace Job Agency";
-        var body = $@"
-        <html>
-        <body style='font-family: Arial, sans-serif;'>
-            <h2>Two-Factor Authentication</h2>
-            <p>Your verification code is:</p>
-        <div style='background-color: #f4f4f4; padding: 20px; text-align: center; margin: 20px 0;'>
-      <h1 style='color: #007bff; letter-spacing: 5px; margin: 0;'>{sanitizedOtp}</h1>
-  </div>
-            <p>This code will expire in <strong>5 minutes</strong>.</p>
-    <p>If you did not attempt to log in, please ignore this email and consider changing your password.</p>
-    <br/>
-       <p>Best regards,<br/>Ace Job Agency Team</p>
-        </body>
-    </html>";
-
-        return await _emailService.SendEmailAsync(email, subject, body);
+        // Use the dedicated 2FA email method which validates and sanitizes the OTP
+        return await _emailService.Send2FAEmailAsync(email, otpCode);
     }
 
     /// <summary>
-    /// Validates if the provided code matches the expected code
+    /// Validates if the provided code matches the expected code using constant-time comparison
     /// </summary>
     public bool ValidateCode(string expectedCode, string providedCode)
     {
         if (string.IsNullOrEmpty(expectedCode) || string.IsNullOrEmpty(providedCode))
             return false;
 
-        return string.Equals(expectedCode.Trim(), providedCode.Trim(), StringComparison.OrdinalIgnoreCase);
+        // Trim whitespace
+        expectedCode = expectedCode.Trim();
+        providedCode = providedCode.Trim();
+
+        // Constant-time comparison to prevent timing attacks
+        if (expectedCode.Length != providedCode.Length)
+            return false;
+
+        var result = 0;
+        for (int i = 0; i < expectedCode.Length; i++)
+        {
+            result |= expectedCode[i] ^ providedCode[i];
+        }
+
+        return result == 0;
     }
 }
