@@ -9,18 +9,11 @@ paths-ignore:
   - '**/obj/**'
   - '**/*.min.js'
 
+# Only analyze our own code
+paths:
+  - 'AppSec Assignment 2/**/*.cs'
+  - 'AppSec Assignment 2/**/*.cshtml'
+
 # Queries to run
 queries:
   - uses: security-and-quality
-
-# Query filters to exclude false positives
-query-filters:
-  - exclude:
-      id: js/unsafe-jquery-plugin
-      # Reason: Third-party jQuery validation library (v1.19.5)
-      # We've added CSP headers to mitigate XSS risks
-      # Consider updating to latest version when available
-  - exclude:
-      id: js/xss
-      paths:
-        - '**/wwwroot/lib/**'
