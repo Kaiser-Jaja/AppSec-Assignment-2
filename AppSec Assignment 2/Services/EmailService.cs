@@ -9,10 +9,10 @@ namespace AppSec_Assignment_2.Services;
 /// </summary>
 public class EmailService
 {
-  private readonly EmailOptions _options;
+    private readonly EmailOptions _options;
     private readonly ILogger<EmailService> _logger;
 
-    public EmailService(IOptions<EmailOptions> options, ILogger<EmailService> logger)
+public EmailService(IOptions<EmailOptions> options, ILogger<EmailService> logger)
     {
     _options = options.Value;
         _logger = logger;
@@ -23,7 +23,8 @@ public class EmailService
     /// </summary>
     public async Task<bool> SendPasswordResetEmailAsync(string toEmail, string resetLink)
     {
-        _logger.LogInformation("Sending password reset email to {Email}", toEmail);
+        // Log without exposing email address
+    _logger.LogInformation("Sending password reset email");
 
         var subject = "Reset Your Password - Ace Job Agency";
         var body = $@"
@@ -36,9 +37,9 @@ public class EmailService
     <p>Or copy and paste this link into your browser:</p>
     <p style='word-break: break-all;'>{resetLink}</p>
     <p>This link will expire in <strong>1 hour</strong>.</p>
-    <p>If you did not request this password reset, please ignore this email.</p>
+  <p>If you did not request this password reset, please ignore this email.</p>
     <br/>
-    <p>Best regards,<br/>Ace Job Agency Team</p>
+ <p>Best regards,<br/>Ace Job Agency Team</p>
 </body>
 </html>";
 
@@ -50,55 +51,50 @@ public class EmailService
     /// </summary>
     public async Task<bool> SendEmailAsync(string toEmail, string subject, string htmlBody)
     {
-     _logger.LogInformation("=== EMAIL SEND ATTEMPT ===");
-        _logger.LogInformation("To: {Email}", toEmail);
-        _logger.LogInformation("Subject: {Subject}", subject);
-        _logger.LogInformation("SMTP Server: {Server}:{Port}", _options.SmtpServer, _options.SmtpPort);
-  _logger.LogInformation("Username: {Username}", _options.SmtpUsername);
-        _logger.LogInformation("EnableSsl: {SSL}", _options.EnableSsl);
+        // Log without exposing sensitive information
+     _logger.LogInformation("Attempting to send email");
+        _logger.LogDebug("SMTP Server: {Server}:{Port}", _options.SmtpServer, _options.SmtpPort);
 
- // If SMTP is not configured, log and return false
+        // If SMTP is not configured, log and return false
         if (string.IsNullOrEmpty(_options.SmtpServer))
         {
-            _logger.LogWarning("SMTP server not configured. Email not sent to {Email}", toEmail);
+ _logger.LogWarning("SMTP server not configured. Email not sent.");
             return false;
         }
 
         try
-     {
+{
             using var message = new MailMessage();
             message.From = new MailAddress(_options.FromEmail, _options.FromName);
-            message.To.Add(new MailAddress(toEmail));
-  message.Subject = subject;
-            message.Body = htmlBody;
-     message.IsBodyHtml = true;
+         message.To.Add(new MailAddress(toEmail));
+          message.Subject = subject;
+         message.Body = htmlBody;
+            message.IsBodyHtml = true;
 
-   using var client = new SmtpClient(_options.SmtpServer, _options.SmtpPort);
-    client.Credentials = new NetworkCredential(_options.SmtpUsername, _options.SmtpPassword);
+      using var client = new SmtpClient(_options.SmtpServer, _options.SmtpPort);
+         client.Credentials = new NetworkCredential(_options.SmtpUsername, _options.SmtpPassword);
       
-     // For Mailtrap port 2525, use EnableSsl = true (it uses STARTTLS)
-          // For Mailtrap port 465, use EnableSsl = true (implicit SSL)
-            // For Mailtrap port 587, use EnableSsl = true (STARTTLS)
-            client.EnableSsl = _options.EnableSsl;
-            client.DeliveryMethod = SmtpDeliveryMethod.Network;
-client.Timeout = 30000; // 30 seconds timeout
+         // For Mailtrap and other services that use STARTTLS
+          client.EnableSsl = _options.EnableSsl;
+client.DeliveryMethod = SmtpDeliveryMethod.Network;
+ client.Timeout = 30000; // 30 seconds timeout
 
-  _logger.LogInformation("Sending email via SMTP...");
-            await client.SendMailAsync(message);
+      await client.SendMailAsync(message);
 
-      _logger.LogInformation("=== EMAIL SENT SUCCESSFULLY ===");
- return true;
+     _logger.LogInformation("Email sent successfully");
+            return true;
         }
         catch (SmtpException ex)
-        {
-            _logger.LogError(ex, "SMTP error sending email to {Email}. StatusCode: {StatusCode}, Message: {Message}", 
- toEmail, ex.StatusCode, ex.Message);
-      return false;
-        }
+{
+            // Log error without exposing email address
+     _logger.LogError(ex, "SMTP error sending email. StatusCode: {StatusCode}", ex.StatusCode);
+   return false;
+     }
         catch (Exception ex)
-        {
-         _logger.LogError(ex, "Error sending email to {Email}: {Message}", toEmail, ex.Message);
-            return false;
+     {
+  // Log error without exposing email address
+  _logger.LogError(ex, "Error sending email");
+      return false;
         }
     }
 }

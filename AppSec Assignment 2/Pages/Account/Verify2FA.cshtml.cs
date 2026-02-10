@@ -21,17 +21,17 @@ public class Verify2FAModel : PageModel
 
     public Verify2FAModel(
       ApplicationDbContext context,
-TwoFactorService twoFactorService,
-        AuditService auditService,
-        ILogger<Verify2FAModel> logger)
+      TwoFactorService twoFactorService,
+      AuditService auditService,
+      ILogger<Verify2FAModel> logger)
     {
         _context = context;
-      _twoFactorService = twoFactorService;
+        _twoFactorService = twoFactorService;
         _auditService = auditService;
-   _logger = logger;
+        _logger = logger;
     }
 
- [BindProperty]
+    [BindProperty]
     public Verify2FAViewModel Input { get; set; } = new();
 
     public IActionResult OnGet(bool rememberMe = false)
@@ -136,7 +136,8 @@ var userAgent = Request.Headers.UserAgent.ToString();
   authProperties);
 
         await _auditService.LogAsync(memberId, "Login (2FA)", ipAddress, userAgent, "Successful 2FA verification");
-        _logger.LogInformation("Member {Email} completed 2FA login", email);
+        // Log without exposing email address
+        _logger.LogInformation("Member ID {MemberId} completed 2FA login", memberId);
 
         return RedirectToPage("/Index");
     }
@@ -156,7 +157,7 @@ var userAgent = Request.Headers.UserAgent.ToString();
         var email = TempData["2FA_Email"]?.ToString() ?? string.Empty;
         var name = TempData["2FA_Name"]?.ToString() ?? string.Empty;
 
-var member = await _context.Members.FindAsync(memberId);
+        var member = await _context.Members.FindAsync(memberId);
         if (member == null)
       {
       return RedirectToPage("/Account/Login");
@@ -171,23 +172,24 @@ var member = await _context.Members.FindAsync(memberId);
         // Send OTP email
         var emailSent = await _twoFactorService.SendOtpEmailAsync(member.Email, otpCode);
 
- if (emailSent)
-    {
-       _logger.LogInformation("2FA OTP resent to {Email}", member.Email);
-            await _auditService.LogAsync(memberId, "2FA OTP Resent", ipAddress, userAgent);
-     TempData["SuccessMessage"] = "A new verification code has been sent to your email.";
- }
-        else
+        if (emailSent)
         {
-       _logger.LogError("Failed to resend 2FA OTP to {Email}", member.Email);
-  TempData["ErrorMessage"] = "Failed to send verification code. Please try again.";
-      }
+            // Log without exposing email address
+   _logger.LogInformation("2FA OTP resent for member ID {MemberId}", memberId);
+            await _auditService.LogAsync(memberId, "2FA OTP Resent", ipAddress, userAgent);
+      TempData["SuccessMessage"] = "A new verification code has been sent to your email.";
+        }
+   else
+  {
+         _logger.LogError("Failed to resend 2FA OTP for member ID {MemberId}", memberId);
+   TempData["ErrorMessage"] = "Failed to send verification code. Please try again.";
+        }
 
-     // Keep TempData for the page
-        TempData["2FA_MemberId"] = memberId;
+        // Keep TempData for the page
+   TempData["2FA_MemberId"] = memberId;
  TempData["2FA_Email"] = email;
-     TempData["2FA_Name"] = name;
+      TempData["2FA_Name"] = name;
 
-        return RedirectToPage("/Account/Verify2FA", new { rememberMe = Input.RememberMe });
+   return RedirectToPage("/Account/Verify2FA", new { rememberMe = Input.RememberMe });
     }
 }

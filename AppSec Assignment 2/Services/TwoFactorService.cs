@@ -33,7 +33,8 @@ public class TwoFactorService
     /// </summary>
     public async Task<bool> SendOtpEmailAsync(string email, string otpCode)
     {
-        _logger.LogInformation("Sending 2FA OTP to {Email}", email);
+        // Log without exposing email address
+        _logger.LogInformation("Sending 2FA OTP");
 
         var subject = "Your Login Verification Code - Ace Job Agency";
         var body = $@"
