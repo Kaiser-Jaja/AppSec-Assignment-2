@@ -1,0 +1,20 @@
+name: "CodeQL Config"
+
+# Paths to ignore during analysis
+paths-ignore:
+  - '**/wwwroot/lib/**'
+  - '**/node_modules/**'
+  - '**/bin/**'
+  - '**/obj/**'
+
+# Queries to run
+queries:
+  - uses: security-and-quality
+
+# Query filters
+query-filters:
+  - exclude:
+      id: js/unsafe-jquery-plugin
+      # Reason: Third-party jQuery validation library (v1.19.5)
+      # We've added CSP headers to mitigate XSS risks
+      # Consider updating to latest version when available

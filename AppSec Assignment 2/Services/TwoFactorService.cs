@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Web;
 
 namespace AppSec_Assignment_2.Services;
 
@@ -36,6 +37,9 @@ public class TwoFactorService
         // Log without exposing email address
         _logger.LogInformation("Sending 2FA OTP");
 
+        // Sanitize OTP code (should only be digits, but ensure no injection)
+        var sanitizedOtp = HttpUtility.HtmlEncode(otpCode);
+
         var subject = "Your Login Verification Code - Ace Job Agency";
         var body = $@"
         <html>
@@ -43,7 +47,7 @@ public class TwoFactorService
             <h2>Two-Factor Authentication</h2>
             <p>Your verification code is:</p>
         <div style='background-color: #f4f4f4; padding: 20px; text-align: center; margin: 20px 0;'>
-      <h1 style='color: #007bff; letter-spacing: 5px; margin: 0;'>{otpCode}</h1>
+      <h1 style='color: #007bff; letter-spacing: 5px; margin: 0;'>{sanitizedOtp}</h1>
   </div>
             <p>This code will expire in <strong>5 minutes</strong>.</p>
     <p>If you did not attempt to log in, please ignore this email and consider changing your password.</p>
